@@ -1,0 +1,19 @@
+(
+~a = Buffer.read(s,"/Users/danielperezarechiga/Desktop/Proyecto S /S - 001/Samples/alpha + beta + theta - datos gratis.wav");
+
+~b = Buffer.read(s,"/Users/danielperezarechiga/Desktop/Proyecto S /S - 001/Samples/Improptu para KVK + SC to BA.wav");
+
+~b1=Buffer.read(s,"/Users/danielperezarechiga/Desktop/Proyecto S /S - 001/Samples/beta1.wav");
+
+~c = Buffer.read(s,"/Users/danielperezarechiga/Desktop/Proyecto S /S - 001/Samples/sample to grain 1.wav");
+
+~d = Buffer.read(s,"/Users/danielperezarechiga/Desktop/Proyecto S /S - 001/Samples/sample to grain 2.wav");
+
+~e = Buffer.read(s,"/Users/danielperezarechiga/Desktop/Proyecto S /S - 001/Samples/Antinius.wav");
+
+~f = Buffer.read(s,"/Users/danielperezarechiga/Desktop/Proyecto S /S - 001/Samples/kick 1.wav");
+
+~g=Buffer.read(s,"/Users/danielperezarechiga/Desktop/Proyecto S /S - 001/Samples/glitch fx 1.wav");
+
+~h = Buffer.read(s,"/Users/danielperezarechiga/Desktop/Proyecto S /S - 001/Samples/ondas delta interfiriendo en beta _01.wav");
+)
