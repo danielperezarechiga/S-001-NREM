@@ -1,0 +1,346 @@
+//COMPLEJO K
+
+s.meter;
+s.makeWindow;
+Buffer.freeAll;
+
+
+/*
+
+     La vida despierto,
+
+          el tráfico,
+          los rostros irremediables de lo(s) que no se conoce(s),
+       en el espejo, hay formas,
+            que se mueven,
+         para entrar
+
+     al territorio
+                      del sueño.
+
+*/
+
+(
+
+~ritmoK=~acelerometroX.normalize(1,8000);
+~ritmoK1 = ~acelerometroZ.normalize(2,8000);
+~ritmoK2 = ~ritmoK;
+~ritmoK3 = ~acelerometroX.normalize(1,80000);
+
+SynthDef(\k1, {
+	arg bufnum=~b.bufnum,rate=1, ritmo=8,ritmo2=14,freqfilter= 1500,pan=0,amp=0.5,out=0;
+	var trigger, starPos, sig, trigger2,env,mod,banda;
+	banda=Line.kr(0.2,0.5,5);
+	trigger=Impulse.kr(ritmo);
+	trigger2=Impulse.kr(ritmo2);
+	starPos=TRand.kr(0,~b.numFrames,trigger2);
+	env=EnvGen.ar(Env.perc(0.2,8),1,doneAction:2);
+	mod=Pulse.kr(ritmo,banda);
+	sig=LPF.ar(PlayBuf.ar(2,bufnum,rate,trigger,starPos),freqfilter,0.7);
+	sig=sig*mod;
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan,amp);
+Out.ar(out,sig)
+}).add;
+q=~ritmoK;
+q=q.keep(100);
+~ritmoK=q;
+Pbind(*[
+	instrument:\k1,
+	dur:Pseq(~ritmoK),
+	amp:Pseq(~acelerometroX*3,1).trace,
+]).play;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SynthDef(\k2, {
+	arg bufnum=~b1,rate=101, ritmo=10,ritmo2=7,amp=0.3;
+	var trigger, starPos, sig, trigger2,env,pan;
+	trigger=Impulse.kr(ritmo);
+	trigger2=Impulse.kr(ritmo2);
+	starPos=TRand.kr(200,~b1.numFrames,trigger2);
+	pan=Line.kr(1,-1,50);
+	env=EnvGen.ar(Env.perc(0.01,10),1,doneAction:2);
+	sig=FreeVerb.ar((PlayBuf.ar(2,bufnum,rate,trigger,starPos,doneAction:2)),0.3,0.3,0,amp);
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan,amp);
+Out.ar(0,sig)
+}).add;
+Pbind(*[
+	instrument:\k2,
+	dur:Pseq(~ritmoK3),
+	amp:Pseq(~acelerometroX*0.8,1).trace;
+]).play;
+SynthDef(\k3, {
+	arg bufnum=~b1,rate=20, ritmo=10,ritmo2=7, freqfilter= 8000,pan=1,amp=0.5;
+	var trigger, starPos, sig, trigger2,env;
+	trigger=Impulse.kr(ritmo);
+	trigger2=Impulse.kr(ritmo2);
+	starPos=TRand.kr(0,~b1.numFrames,trigger2);
+	env=EnvGen.ar(Env.perc(0.01,5),1,doneAction:2);
+	sig=LPF.ar(PlayBuf.ar(2,bufnum,rate,trigger,starPos,doneAction:2),freqfilter,0.8);
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan,amp);
+Out.ar(0,sig)
+}).add;
+w=~ritmoK1;
+w.keep(20);
+~ritmoK1=w;
+Pbind(*[
+	instrument:\k3,
+	dur:Pseq(~ritmoK1,1).trace,
+	amp:Pseq(~acelerometroX,1);
+]).play;
+
+//lfo subacuatico.
+SynthDef(\fx1,{
+	arg rate=0.07,amp=1,gate=1,out=0,pan=0,freqfilter=250;
+	var sig,env;
+	sig=LPF.ar(PlayBuf.ar(2,~d.bufnum,rate,1,100,doneAction:2),freqfilter);
+	sig=sig*amp;
+	env=EnvGen.ar(Env.new([1],[40]),gate);
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan) ;
+	Out.ar(out,sig)
+}).play;
+
+//aumento de densidad
+
+SynthDef(\k4, {
+	arg bufnum=~b.bufnum,ritmo=7,ritmo2=10,freqfilter= 7000,pan=1,amp=0.5,out=0;
+	var trigger, starPos,sig,trigger2,env,rate;
+
+	rate=XLine.kr(600,400,80);
+	ritmo=Line.kr(0.001,1000,10);
+	trigger=Dust.kr(ritmo);
+	trigger2=Impulse.kr(ritmo2);
+	starPos=TRand.kr(0,~b.numFrames,trigger2);
+	sig=LPF.ar(PlayBuf.ar(2,bufnum,rate,trigger,starPos),freqfilter,0.8);
+	env=EnvGen.ar(Env.perc(0.2,8),1,doneAction:2);
+	sig=sig*amp;
+    sig=sig*env;
+	sig=Pan2.ar(sig,pan);
+Out.ar(out,sig)
+}).add;
+Pbind(*[
+	instrument:\k4,
+	dur:Pseq(~ritmoK1,1),
+	amp:Pseq(~acelerometroX*0.5,1).trace;
+]).play;
+
+SynthDef(\k5, {
+	arg bufnum=~b,rate=200, ritmo=10,ritmo2=7, freqfilter= 8000,pan=1,amp=0.5;
+	var trigger, starPos, sig, trigger2,env;
+	trigger=Impulse.kr(ritmo);
+	trigger2=Impulse.kr(ritmo2);
+	starPos=TRand.kr(0,~b.numFrames,trigger2);
+	env=EnvGen.ar(Env.perc(0.2,8),1,doneAction:2);
+	sig=SinOsc.ar(800,0,1)*LPF.ar(PlayBuf.ar(2,bufnum,rate,trigger,starPos),freqfilter,0.8);
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan,amp);
+Out.ar(0,sig)
+}).add;
+Pbind(*[
+	instrument:\k5,
+	dur:Pseq(~ritmoK,1),
+	amp:Pseq(~acelerometroX,1).trace;
+]).play;
+
+///////////////////////////////////////////////////////////////////////////
+
+//Buffer + Sinoidales
+
+~x1=(2100,2075..2000);
+~x2=Array.linrand(20,0.2,1);
+s.makeWindow;
+(SynthDef(\fx2n1, {
+	arg freqmod=2000,rate=0.2,amp=1,gate=1,out=1,pan=1,freqfilter=1000;
+	var sig,env,starPos;
+	starPos=TRand.kr(0,~b.numFrames,1);
+	sig=SinOsc.ar(freqmod,0,0.5)*LPF.ar(PlayBuf.ar(2,~b.bufnum,rate,1,starPos,0),freqfilter);
+	sig=sig*amp;
+	env=EnvGen.kr(Env.new([1,1],[30,30]),gate,doneAction:2);
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan);
+	Out.ar(out,sig)
+}).add;
+Pbind(*[
+	instrument: \fx2n1,
+	freqmod:Pseq(~x1,inf).trace,
+	amp:Prand(~x2,inf).trace,
+	dur:Pshuf([4,3,2,1],20).trace
+]).play;)
+)
+
+///////////////////////////////////////////
+
+//transformacion de fx2n
+
+Synth(\fx2n1,[\amp,~x2*2.5])
+
+(SynthDef(\fx2n2, {
+	arg freqmod=2000,rate=0.2,amp=1,gate=1,out=1,pan=0,freqfilter=1000;
+	var sig,env,starPos;
+	starPos=TRand.kr(0,~c.numFrames,1);
+	sig=SinOsc.ar(freqmod,0,0.5)*LPF.ar(PlayBuf.ar(2,~c.bufnum,rate,1,starPos,0),freqfilter);
+	sig=sig*amp;
+	env=EnvGen.kr(Env.new([1,1],[30,30]),gate,doneAction:2);
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan);
+	Out.ar(out,sig)
+}).add;
+Pbind(*[
+	instrument: \fx2n2,
+	freqmod:Pseq(~x1,inf).trace,
+	amp:Prand(~x2*0.6,inf).trace,
+	dur:Pshuf([4,3,2,1],20).trace
+]).play;)
+
+
+(SynthDef(\fx2n3, {
+	arg freqmod=2000,rate=0.2,amp=0.2,gate=1,out=1,pan=0,freqfilter=1000;
+	var sig,env,starPos,modular;
+	modular=SinOsc.kr(10,0,amp);
+	starPos=TRand.kr(0,~d.numFrames,1);
+	sig=SinOsc.ar(freqmod,0,1)*LPF.ar(PlayBuf.ar(2,~d.bufnum,rate,1,starPos,0),freqfilter)+SinOsc.ar(1050,0,modular);
+	sig=sig*amp;
+	env=EnvGen.kr(Env.new([0.2,1],[15,40]),gate,doneAction:2);
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan);
+	Out.ar(out,sig)
+}).add;
+Pbind(*[
+	instrument: \fx2n3,
+	freqmod:Pseq(~x1,inf).trace,
+	amp:Prand(~x2*0.2,inf).trace,
+	dur:Pshuf([4,3,2,1],20).trace
+]).play;
+)
+
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
+//TONOS LARGOS DISCRETOS CON REVERBS
+
+(
+u=~acelerometroZ;
+~ampsrvb1=u.keep(15);
+~ampsrvb2=u.keep(10);
+
+SynthDef(\rvb2, {
+	arg bufnum=~b,ritmo2=1,rate=10,freqfilter=400,pan=1,amp=1,mix=1,room=1.5,damp=1,out=0;
+	var trigger, starPos, sig,trigger2,env,ritmo;
+
+	ritmo=Line.kr(1,5,10);
+	trigger=Dust.kr(ritmo);
+	trigger2=Impulse.kr(ritmo2);
+	starPos=TRand.kr(0,~b.numFrames,trigger2);
+	sig=HPF.ar(FreeVerb.ar(PlayBuf.ar(2,bufnum,rate,trigger,starPos),mix,room,damp),freqfilter);
+	env=EnvGen.ar(Env.perc(0.01,12),1,doneAction:2);
+	sig=sig*amp;
+    sig=sig*env;
+	sig=Pan2.ar(sig,pan);
+Out.ar(out,sig)
+}).add;
+Pbind(*[
+	instrument:\rvb2,
+	dur:Pseq(~ritmoK1,1),
+	amp:Pseq(~ampsrvb2,1).trace;
+]).play;
+
+u=~acelerometroZ*4;
+~ampsrvb1=u.keep(15);
+~ampsrvb2=u.keep(10);
+
+SynthDef(\rvb1, {
+	arg bufnum=~b,ritmo2=7, rate=0.5,freqfilter= 7000,pan=1,amp=0.1,mix=0.6,room=0.2,damp=0,out=0;
+	var trigger, starPos, sig,trigger2,env,ritmo;
+
+	ritmo=Line.kr(1,5,10);
+	trigger=Dust.kr(ritmo);
+	trigger2=Impulse.kr(ritmo2);
+	starPos=TRand.kr(0,~b.numFrames,trigger2);
+	sig=FreeVerb.ar(PlayBuf.ar(2,bufnum,rate,trigger,starPos),mix,room,damp);
+	env=EnvGen.ar(Env.perc(0.01,12),1,doneAction:2);
+	sig=sig*amp;
+    sig=sig*env;
+	sig=Pan2.ar(sig,pan);
+Out.ar(out,sig)
+}).add;
+Pbind(*[
+	instrument:\rvb1,
+	dur:Pseq(~ritmoK1,1),
+	amp:Pseq(~ampsrvb1*0.2,1).trace;
+]).play
+)
+
+////////////////////////////////////////////////////////////////////////////////
+
+(
+~imp=(0.5,1..10.0).choose;
+
+(SynthDef(\alpha0,{
+	arg rate=0.5, impulse=(0.5,1..10.0).choose, star=2, amp=1, gate=1;
+	var sig, trig, starPos, env,pan;
+	trig = Impulse.kr(impulse);
+	pan = Line.kr(-1,1,10);
+	starPos = TRand.kr(0,~a.numFrames,Impulse.kr(star));
+	sig = PlayBuf.ar(2,~a.bufnum,rate,trig,starPos);
+	sig=sig*amp;
+	env = EnvGen.kr(Env.asr(20,2,0.1),gate,doneAction:2);
+	sig = sig*env;
+	sig=Pan2.ar(sig,pan);
+	Out.ar(0,sig)
+}).play);
+
+~dursalpha0=~eeg4.normalize(3,6);
+//~dursalpha0.cos.plot;
+Pbind(*[
+	instrument:\alpha0,
+	dur:Prand(~dursalpha0,1).trace
+]).play)
+
+
+////////////////////////////////////
+
+//Un remate.
+
+Buffer.freeAll;
+(SynthDef(\alpha1,{
+	arg rate=1,amp=1.2,gate=1,out=0,pan=1;
+	var sig,env;
+	sig=PlayBuf.ar(2,~g.bufnum,rate,1,0,doneAction:2);
+	sig=sig*amp;
+	env=EnvGen.kr(Env.new([1,1],[30,30]),gate);
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan);
+	Out.ar(out,sig)
+}).play;
+
+SynthDef(\glitch2,{
+	arg amp=0.2,gate=1,out=0,pan=1;
+	var sig,env,rate;
+	rate=Line.kr(2,0.1,2);
+	sig=PlayBuf.ar(2,~g.bufnum,rate,1,0,doneAction:2);
+	sig=sig*amp;
+	env=EnvGen.kr(Env.new([25,1],[1,30]),gate);
+	sig=sig*env;
+	sig=Pan2.ar(sig,pan);
+	Out.ar(out,sig)
+}).play;
+)
+
+s.meter
+
